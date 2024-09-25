@@ -1,0 +1,227 @@
+1. 
+#include <stdio.h>
+#include <stdlib.h>
+
+void multiplyMatrices(int **a, int **b, int **result, int rowsA, int colsA, int colsB) {
+    for (int i = 0; i < rowsA; i++) {
+        for (int j = 0; j < colsB; j++) {
+            *(result[i] + j) = 0; // Initialize the result matrix element to 0
+            for (int k = 0; k < colsA; k++) {
+                *(result[i] + j) += (*(a[i] + k)) * (*(b[k] + j));
+            }
+        }
+    }
+}
+
+void freeMatrix(int **matrix, int rows) {
+    for (int i = 0; i < rows; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
+int main() {
+    int rowsA, colsA, rowsB, colsB;
+
+    printf("Enter rows and columns for first matrix (A): ");
+    scanf("%d %d", &rowsA, &colsA);
+
+    printf("Enter rows and columns for second matrix (B): ");
+    scanf("%d %d", &rowsB, &colsB);
+
+    if (colsA != rowsB) {
+        printf("Matrix multiplication is not possible.\n");
+        return 1;
+    }
+
+    int **a = (int **)malloc(rowsA * sizeof(int *));
+    for (int i = 0; i < rowsA; i++) {
+        a[i] = (int *)malloc(colsA * sizeof(int));
+    }
+
+    int **b = (int **)malloc(rowsB * sizeof(int *));
+    for (int i = 0; i < rowsB; i++) {
+        b[i] = (int *)malloc(colsB * sizeof(int));
+    }
+
+    int **result = (int **)malloc(rowsA * sizeof(int *));
+    for (int i = 0; i < rowsA; i++) {
+        result[i] = (int *)malloc(colsB * sizeof(int));
+    }
+    printf("Enter elements of matrix A:\n");
+    for (int i = 0; i < rowsA; i++) {
+        for (int j = 0; j < colsA; j++) {
+            printf("A[%d][%d]: ", i, j);
+            scanf("%d", (*(a + i) + j));
+        }
+    }
+
+    printf("Enter elements of matrix B:\n");
+    for (int i = 0; i < rowsB; i++) {
+        for (int j = 0; j < colsB; j++) {
+            printf("B[%d][%d]: ", i, j);
+            scanf("%d", (*(b + i) + j));
+        }
+    }
+    multiplyMatrices(a, b, result, rowsA, colsA, colsB);
+
+    printf("Resultant matrix (A * B):\n");
+    for (int i = 0; i < rowsA; i++) {
+        for (int j = 0; j < colsB; j++) {
+            printf("%d ", *(result[i] + j));
+        }
+        printf("\n");
+    }
+
+    freeMatrix(a, rowsA);
+    freeMatrix(b, rowsB);
+    freeMatrix(result, rowsA);
+
+    return 0;
+}
+
+
+
+
+
+
+2.
+
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_STUDENTS 100
+
+void createList(char students[MAX_STUDENTS][50], int *count) {
+    printf("Enter the number of students: ");
+    scanf("%d", count);
+    for (int i = 0; i < *count; i++) {
+        printf("Enter student name %d: ", i + 1);
+        scanf("%s", students[i]);
+    }
+}
+
+void insertStudent(char students[MAX_STUDENTS][50], int *count) {
+    char newStudent[50];
+    int position;
+
+    printf("Enter the student's name to insert: ");
+    scanf("%s", newStudent);
+    printf("Enter the position (0-based index) to insert the student: ");
+    scanf("%d", &position);
+
+    if (position >= 0 && position <= *count && *count < MAX_STUDENTS) {
+        for (int i = *count; i > position; i--) {
+            strcpy(students[i], students[i - 1]);
+        }
+        strcpy(students[position], newStudent);
+        (*count)++;
+    } else {
+        printf("Invalid position or student limit reached.\n");
+    }
+}
+
+void deleteStudent(char students[MAX_STUDENTS][50], int *count) {
+    char name[50];
+    int position;
+
+    printf("Delete by name or position? (n/p): ");
+    char choice;
+    scanf(" %c", &choice);
+
+    if (choice == 'n') {
+        printf("Enter the student's name to delete: ");
+        scanf("%s", name);
+        for (int i = 0; i < *count; i++) {
+            if (strcmp(students[i], name) == 0) {
+                for (int j = i; j < *count - 1; j++) {
+                    strcpy(students[j], students[j + 1]);
+                }
+                (*count)--;
+                printf("Student %s deleted.\n", name);
+                return;
+            }
+        }
+        printf("Student %s not found.\n", name);
+    } else if (choice == 'p') {
+        printf("Enter the position to delete (0-based index): ");
+        scanf("%d", &position);
+        if (position >= 0 && position < *count) {
+            for (int j = position; j < *count - 1; j++) {
+                strcpy(students[j], students[j + 1]);
+            }
+            (*count)--;
+            printf("Student at position %d deleted.\n", position);
+        } else {
+            printf("Invalid position.\n");
+        }
+    } else {
+        printf("Invalid choice.\n");
+    }
+}
+
+void displayStudents(char students[MAX_STUDENTS][50], int count) {
+    printf("Student list: [");
+    for (int i = 0; i < count; i++) {
+        printf("%s", students[i]);
+        if (i < count - 1) {
+            printf(", ");
+        }
+    }
+    printf("]\n");
+}
+
+void searchStudent(char students[MAX_STUDENTS][50], int count) {
+    char name[50];
+    printf("Enter the student's name to search: ");
+    scanf("%s", name);
+    for (int i = 0; i < count; i++) {
+        if (strcmp(students[i], name) == 0) {
+            printf("%s found at position %d\n", name, i);
+            return;
+        }
+    }
+    printf("%s not found.\n", name);
+}
+
+int main() {
+    char students[MAX_STUDENTS][50];
+    int count = 0;
+    int choice;
+
+    do {
+        printf("1. Create the list of students\n");
+        printf("2. Insert a new student\n");
+        printf("3. Delete a student\n");
+        printf("4. Display student list\n");
+        printf("5. Search for a student\n");
+        printf("6. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                createList(students, &count);
+                break;
+            case 2:
+                insertStudent(students, &count);
+                break;
+            case 3:
+                deleteStudent(students, &count);
+                break;
+            case 4:
+                displayStudents(students, count);
+                break;
+            case 5:
+                searchStudent(students, count);
+                break;
+            case 6:
+                printf("Exiting the program...\n");
+                break;
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    } while (choice != 6);
+
+    return 0;
+}
